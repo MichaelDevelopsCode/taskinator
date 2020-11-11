@@ -64,6 +64,7 @@ var createTaskEl = function(taskDataObj) {
 
     taskDataObj.id = taskIdCounter;
     tasks.push(taskDataObj);
+    saveTasks();
 
     // increase task counter for next unique id
     taskIdCounter++;
@@ -160,6 +161,7 @@ var deleteTask = function(taskId) {
 
     // reassign tasks array to be the same as updatedTaskArr
     tasks = updatedTaskArr;
+    saveTasks();
 };
 
 var completeEditTask = function(taskName, taskType, taskId) {
@@ -177,6 +179,8 @@ var completeEditTask = function(taskName, taskType, taskId) {
             tasks[i].type = taskType;
         }
     };
+
+    saveTasks();
 
     alert("Task Updated!");
     
@@ -210,7 +214,7 @@ var taskStatusChangeHandler = function(event) {
             tasks[i].status = statusValue;
         }
     }
-
+    saveTasks();
 };
 
 var dragTaskHandler = function(event) {
@@ -220,13 +224,6 @@ var dragTaskHandler = function(event) {
     var getId = event.dataTransfer.getData("text/plain");
     console.log("getId:", getId, typeof getId);
     dropZoneEl.removeAttribute("style");
-
-    // loop through tasks array to find and update the updated task's status
-    for (var i = 0; i < tasks.length; i++) {
-        if (tasks[i].id === parseInt(id)) {
-            tasks[i].status = statusSelectEl.value.toLowerCase();
-        }
-    }
 };
 
 var dropZoneDragHandler = function(event) {
@@ -253,7 +250,13 @@ var dropTaskHandler = function(event) {
     else if (statusType === "tasks-completed") {
         statusSelectEl.selectedIndex = 2;
     }
-
+    // loop through tasks array to find and update the updated task's status
+    for (var i = 0; i < tasks.length; i++) {
+        if (tasks[i].id === parseInt(id)) {
+            tasks[i].status = statusSelectEl.value.toLowerCase();
+        }
+    }
+    saveTasks();
     dropZoneEl.appendChild(draggableElement);
 };
 
@@ -262,6 +265,10 @@ var dragLeaveHandler = function(event) {
     if (taskListEl) {
         taskListEl.removeAttribute("style");
     }
+}
+
+var saveTasks = function() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 formEl.addEventListener("submit", taskFormHandler);
